@@ -1,0 +1,26 @@
+# Local campaign data and verification artifacts
+campaign-runs/
+verification/
+publication-verification/
+generated_images/
+evidence/
+
+# Python and local environments
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# Credentials, browser state and machine-specific files
+.env
+.env.*
+!.env.example
+*credentials*.json
+*cookies*.json
+*storage-state*.json
+*.pem
+*.key
+.DS_Store
+._*
+*.log

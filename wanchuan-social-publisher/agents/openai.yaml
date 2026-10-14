@@ -1,0 +1,4 @@
+interface:
+  display_name: "万川社媒自动发布"
+  short_description: "从万川官网选品，生成英文图文并发布到 Facebook 和 LinkedIn"
+  default_prompt: "使用 $wanchuan-social-publisher 从万川官网随机选择一个产品，生成英文文案及四宫格图片，完成 Facebook 和 LinkedIn 发布与记录。"
