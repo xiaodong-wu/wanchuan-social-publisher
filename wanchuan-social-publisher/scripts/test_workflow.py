@@ -51,7 +51,7 @@ Consider this nail drill when evaluating equipment for your nail salon product r
 
 Contact Vantrend Beauty with your product questions and purchasing requirements.
 
-'''+URL+'\n\n#NailDrill #NailCare #BeautyTools #NailSalon #Manicure #Sourcing #BeautySupply #NailTools'
+#NailDrill #NailCare #BeautyTools #NailSalon #Manicure #Sourcing #BeautySupply #NailTools'''
         li='''Choosing a nail drill for your product range starts with checking the details that affect daily handling and procurement conversations. A clear product specification helps buyers compare options and ask focused questions before ordering.
 
 - Cordless pen design provides a compact format for nail care.
@@ -63,7 +63,7 @@ The VC-21 is presented for nail salons, with nail filing and gel removal describ
 
 Contact Vantrend Beauty to discuss your sourcing questions, request further product information, and confirm the details needed for your purchasing review.
 
-'''+URL+'\n\n#NailDrill #BeautyTools #Sourcing'
+#NailDrill #BeautyTools #Sourcing'''
         Path(m['artifacts']['facebook_copy']).write_text(fb)
         Path(m['artifacts']['linkedin_copy']).write_text(li)
         im=Image.new('RGB',(1000,1000),'#c39988');enc,final,_=compress(strip_metadata(im),750*1024,(960,960))
@@ -100,6 +100,26 @@ Contact Vantrend Beauty to discuss your sourcing questions, request further prod
     def test_full_social_batch_needs_no_article(self):
         path,m=self.campaign();result=validate_campaign(m)
         self.assertEqual(result['status'],'validated');self.assertEqual(set(m['channels']),{'facebook','linkedin'})
+        self.assertEqual(m['product']['canonical_url'],URL)
+        self.assertEqual(json.loads(Path(m['artifacts']['content_plan']).read_text())['source_url'],URL)
+        for channel in IDENTITIES:
+            self.assertNotIn(URL,Path(m['artifacts'][channel+'_copy']).read_text())
+    def test_website_links_block_submission_even_after_copy_review(self):
+        path,m=self.campaign()
+        for channel in IDENTITIES:
+            key=channel+'_copy';copy_path=Path(m['artifacts'][key]);original=copy_path.read_text()
+            for link in [URL,'HTTP://example.org/product','www.vantrendtools.com',
+                         'vantrendtools.com/products/','https://lnkd.in/example',
+                         '[Details](https://example.com/product)','EXAMPLE.SHOP']:
+                with self.subTest(channel=channel,link=link):
+                    copy_path.write_text(original+'\n'+link)
+                    review_path=Path(m['artifacts']['review']);review=json.loads(review_path.read_text())
+                    review['sha256'][key]=digest(copy_path);write_manifest(review_path,review)
+                    with self.assertRaisesRegex(ValueError,'must not contain website links'):
+                        update_manifest(path,channel,'pending',submission_started=True)
+                    self.assertNotIn('submission_started_at',load_manifest(path)['channels'][channel])
+            copy_path.write_text(original)
+            review['sha256'][key]=digest(copy_path);write_manifest(review_path,review)
     def test_stale_copy_blocks_submission(self):
         path,m=self.campaign();Path(m['artifacts']['facebook_copy']).write_text('Changed unreviewed text')
         with self.assertRaises(ValueError): update_manifest(path,'facebook','pending',submission_started=True)
