@@ -30,11 +30,12 @@ description: 为万川 Vantrend Beauty 从 vantrendtools.com/products/ 随机或
 
 ## 执行流程
 
-1. **预检。** 读取 [发布流程](references/publishing.md)。先查询可用发布连接器，
-   无合适连接器时使用当前支持的浏览器工具和已登录 Chrome。读取工具初始化文档，
-   不调用过时浏览器接口。确认两个固定账号均有发帖权限；Facebook 可执行一次已明确
+1. **预检。** 读取 [发布流程](references/publishing.md)。live 发布使用浏览器插件连接已登录
+   Chrome，通过扩展会话完成双平台的身份核验、上传、预览、提交和公开核验。
+   读取当前插件工具的初始化文档；插件不可用或未连接时，在生成素材前报告阻塞。
+   确认两个固定账号均有发帖权限；Facebook 可执行一次已明确
    指向目标主页的两步身份切换。登录、MFA、验证码、身份不明或权限缺失时停止，
-   在生成素材前报告阻塞。dry-run 不要求社媒登录。
+   在生成素材前报告阻塞。dry-run 不要求社媒登录或浏览器插件。
 2. **选品。** 读取 [选品规则](references/product-selection.md)。执行
    `scripts/scrape_product.py --mode live --output-root RUNS_ROOT`；dry-run 改用
    `--mode dry-run`。默认输出当前工作目录的 `campaign-runs/`，不得存入技能目录。
@@ -94,4 +95,4 @@ python3 scripts/validate_completion.py MANIFEST
 
 `--mode` 默认 `dry-run`。恢复任务沿用原模式，不把已完成 dry-run 修改成 live；若用户
 要求随后发布，创建明确的 live 运行，重新核验账号和素材。脚本只处理公开读取、本地素材
-和状态；真正发帖及 Sheets 写入由当前授权的连接器或浏览器完成。
+和状态；真正发帖由浏览器插件操作已登录 Chrome 完成，Sheets 写入仍遵循记录规范。
